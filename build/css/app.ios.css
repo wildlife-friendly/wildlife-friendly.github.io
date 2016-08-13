@@ -8825,3 +8825,7 @@ body {
 
 .search-page .results {
   margin-left: 200px; }
+
+.search-page .results-message {
+  padding-left: 24px;
+  color: rgba(0, 0, 0, 0.4); }
