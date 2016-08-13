@@ -139,10 +139,13 @@ var SearchPage = (function () {
         this.latLng = null;
         this.locationQuery = "";
         this.selectedLocation = "";
+        this.searchIsPending = true;
+        this.hasQuery = false;
         this.selectLocation = function (location) {
             _this.dropDownActive = false;
-            _this.searchQuery = location.description;
+            _this.locationQuery = location.description;
             _this.selectedLocation = location;
+            _this.searchIsPending = false;
         };
         navigator.geolocation.getCurrentPosition(function (position) {
             this.latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -154,12 +157,15 @@ var SearchPage = (function () {
     };
     SearchPage.prototype.onLocationSearch = function (query) {
         var _this = this;
+        this.searchIsPending = true;
         if (!query) {
             query = '';
         }
         this.dropDownActive = (query.length >= 3 && this.locations.length);
+        this.hasQuery = query.length > 0;
         if (query.length < 3) {
             this.locations = [];
+            this.selectedLocation = null;
             return;
         }
         var req = { input: query };
@@ -182,6 +188,9 @@ var SearchPage = (function () {
             return this.placeService.placesNear(this.selectedLocation);
         }
         return [];
+    };
+    SearchPage.prototype.placesFound = function () {
+        return this.places().length > 0;
     };
     SearchPage = __decorate([
         core_1.Component({
@@ -209,6 +218,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var PlaceService = (function () {
     function PlaceService() {
+        this.service = new google.maps.DistanceMatrixService();
         this.places = [{
                 title: 'Elephant Nature Park',
                 note: 'Chiang Mai, Thailand',
@@ -216,16 +226,28 @@ var PlaceService = (function () {
                 url: 'http://www.elephantnaturepark.org/',
                 image: 'img/bigenp.jpg',
                 logo: 'img/enp.png',
-                longitude: 1,
-                latitude: 1
-            }];
+                longitude: 98.86139,
+                latitude: 19.21644
+            }
+        ];
         this.radiosInKm = 200;
+        this.availablePlaces = [];
     }
     PlaceService.prototype.placesNear = function (location) {
+        var allPlaces = this.places.map(function (p) { return new google.maps.LatLng(p.latitude, p.longitude); });
+        this.service.getDistanceMatrix({
+            origins: [location.description],
+            destinations: allPlaces,
+            travelMode: 'DRIVING',
+        }, this.calcAvailablePlaces);
         if (location.description.toLowerCase().includes("thailand")) {
             return this.places;
         }
         return [];
+    };
+    PlaceService.prototype.calcAvailablePlaces = function (result) {
+        // console.log(result.rows[0].);
+        // this.availablePlaces.filter((r) => r.)
     };
     PlaceService = __decorate([
         core_1.Injectable(), 

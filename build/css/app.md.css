@@ -9575,3 +9575,6 @@ body {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex; }
+
+.search-page .results {
+  margin-left: 200px; }
