@@ -161,6 +161,7 @@ var SearchPage = (function () {
         if (!query) {
             query = '';
         }
+        this.placeService.availablePlaces = [];
         this.dropDownActive = (query.length >= 3 && this.locations.length);
         this.hasQuery = query.length > 0;
         if (query.length < 3) {
@@ -177,6 +178,7 @@ var SearchPage = (function () {
                 _this.locations = predictions;
                 _this.dropDownActive = true;
                 _this.selectedLocation = predictions[0];
+                _this.placeService.placesNear(_this.selectedLocation);
             }
         });
     };
@@ -190,7 +192,10 @@ var SearchPage = (function () {
         return [];
     };
     SearchPage.prototype.placesFound = function () {
-        return this.places().length > 0;
+        return this.availablePlaces().length > 0;
+    };
+    SearchPage.prototype.availablePlaces = function () {
+        return this.placeService.availablePlaces;
     };
     SearchPage = __decorate([
         core_1.Component({
@@ -218,6 +223,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var PlaceService = (function () {
     function PlaceService() {
+        var _this = this;
         this.service = new google.maps.DistanceMatrixService();
         this.places = [{
                 title: 'Elephant Nature Park',
@@ -228,10 +234,41 @@ var PlaceService = (function () {
                 logo: 'img/enp.png',
                 longitude: 98.86139,
                 latitude: 19.21644
+            },
+            {
+                title: 'Deer Forest',
+                note: 'Odem, Israel',
+                icon: 'build',
+                url: 'http://www.yayalim.co.il/',
+                image: 'img/deer.jpg',
+                logo: 'img/deerLogo.gif',
+                longitude: 35.74957,
+                latitude: 33.19337
+            },
+            {
+                title: 'Dolphin Reef Eilat',
+                note: 'Eilat, Israel',
+                icon: 'build',
+                url: 'http://www.dolphinreef.co.il/',
+                image: 'img/dol.jpg',
+                logo: 'img/dolLogo.gif',
+                longitude: 34.93579,
+                latitude: 29.52713
             }
         ];
         this.radiosInKm = 200;
         this.availablePlaces = [];
+        this.calcAvailablePlaces = function (result) {
+            var placesWithDistance = [];
+            for (var i = 0; i < _this.places.length; i++) {
+                if (result.rows[0].elements[i].status === "OK") {
+                    var place = _this.places[i];
+                    place['distance'] = result.rows[0].elements[i].distance.value / 1000;
+                    placesWithDistance.push(place);
+                }
+            }
+            _this.availablePlaces = placesWithDistance.filter(function (p) { return p.distance < _this.radiosInKm; });
+        };
     }
     PlaceService.prototype.placesNear = function (location) {
         var allPlaces = this.places.map(function (p) { return new google.maps.LatLng(p.latitude, p.longitude); });
@@ -240,14 +277,7 @@ var PlaceService = (function () {
             destinations: allPlaces,
             travelMode: 'DRIVING',
         }, this.calcAvailablePlaces);
-        if (location.description.toLowerCase().includes("thailand")) {
-            return this.places;
-        }
         return [];
-    };
-    PlaceService.prototype.calcAvailablePlaces = function (result) {
-        // console.log(result.rows[0].);
-        // this.availablePlaces.filter((r) => r.)
     };
     PlaceService = __decorate([
         core_1.Injectable(), 
