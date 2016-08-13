@@ -9492,7 +9492,8 @@ body {
 .search-page .ion-place-tools-autocomplete {
   position: relative;
   width: 100%;
-  overflow: visible; }
+  overflow: visible;
+  cursor: pointer; }
 
 .search-page .ion-place-tools-autocomplete input {
   width: 100%; }
