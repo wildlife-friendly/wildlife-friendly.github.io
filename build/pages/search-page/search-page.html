@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-navbar>
+    <button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Search</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content class="search-page">
+
+  <div class="ion-place-tools-autocomplete flex-column">
+    <ion-searchbar type="text"
+           autocomplete="off"
+           placeholder="Where do you wanna go?"
+           [value]="locationQuery"
+           (input)="onLocationSearch($event.target.value)">
+      </ion-searchbar>
+    <div class="item ion-place-tools-autocomplete-dropdown" *ngIf="dropDownActive">
+      <ion-list>
+        <ion-item *ngFor="let location of locations" (click)="selectLocation(location)">
+          {{location.description}}
+        </ion-item>
+      </ion-list>
+    </div>
+  </div>
+
+  <div *ngIf="places().length > 0">
+    <ion-list>
+      <ion-card *ngFor="let place of places()" class="place-card" (click)="itemTapped($event, place)">
+        <img src="{{place.image}}" class="place-image" />
+        <div class="card-info">
+          <img src="{{place.logo}}" class="place-logo"/>
+          <div>
+            <ion-card-header class="place-content">
+              {{place.title}}
+            </ion-card-header>
+            <ion-card-content class="place-content place-details">
+              {{place.note}}
+              <div class="badges">
+                <img class="place-badge" src="img/badges/Picture11.png" />
+                <img class="place-badge" src="img/badges/season_all.png" />
+                <img class="place-badge" src="img/badges/Picture5.png" />
+              </div>
+            </ion-card-content>
+          </div>
+        </div>
+      </ion-card>
+    </ion-list>
+  </div>
+
+</ion-content>
